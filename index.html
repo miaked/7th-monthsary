@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>For you 💐</title>
+<style>
+:root{--bg1:#fde7ef;--bg2:#f6d5e4;--ink:#4a2c3a;--paper:#fffaf3;--accent:#d96a93;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg1:#2a1a24;--bg2:#3a2231;--ink:#f6e3ec;--paper:#fffaf3;--accent:#e57fa4}}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:linear-gradient(160deg,var(--bg1),var(--bg2));font-family:Georgia,"Times New Roman",serif;color:var(--ink)}
+.page{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;opacity:0;pointer-events:none;transition:opacity .9s ease;padding:16px}
+.page.active{opacity:1;pointer-events:auto}
+h1{font-size:clamp(20px,5vw,28px);margin:0;font-weight:normal;text-align:center}
+.hint{font-size:14px;opacity:.75;text-align:center}
+button{font-family:inherit;cursor:pointer}
+.btn{background:var(--accent);color:#fff;border:0;border-radius:999px;padding:10px 24px;font-size:16px;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.hidden{display:none!important}
+
+/* CAMERA */
+.stage{position:relative;width:280px;height:430px}
+.cam{position:absolute;top:0;left:0;width:280px;height:190px;z-index:3;border-radius:22px;background:linear-gradient(#e9e9ef,#b9b9c4);box-shadow:0 14px 30px rgba(0,0,0,.35);border:2px solid #9a9aa8}
+.cam::before{content:"";position:absolute;top:-10px;left:28px;width:60px;height:14px;border-radius:6px 6px 0 0;background:#8d8d9b}
+.flashbulb{position:absolute;top:16px;right:20px;width:46px;height:24px;border-radius:6px;background:linear-gradient(#fff,#ddd);border:2px solid #8d8d9b}
+.lens{position:absolute;top:38px;left:80px;width:120px;height:120px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#6c7bd8 0,#1b1f4a 35%,#05060f 75%);border:8px solid #4a4a58;box-shadow:inset 0 0 14px #000,0 0 0 4px #c9c9d4}
+.lens::after{content:"";position:absolute;top:22px;left:26px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.55)}
+.brand{position:absolute;top:18px;left:20px;font:bold 12px Arial,sans-serif;letter-spacing:2px;color:#55556a}
+.shutter{position:absolute;top:-16px;right:44px;width:46px;height:20px;border-radius:8px 8px 0 0;background:var(--accent);border:2px solid #9a4163;border-bottom:0;transition:transform .1s}
+.shutter:active,.shutter.press{transform:translateY(5px)}
+.slot{position:absolute;bottom:14px;left:40px;right:40px;height:8px;border-radius:4px;background:#2a2a35}
+.photo{position:absolute;top:0;left:50%;width:210px;z-index:2;background:#fff;padding:12px 12px 44px;box-shadow:0 8px 18px rgba(0,0,0,.35);transform:translate(-50%,-110%);transition:transform 3.2s cubic-bezier(.3,.7,.3,1)}
+.photo.out{transform:translate(-50%,185px)}
+.photo .img{width:100%;aspect-ratio:1/1;background:linear-gradient(135deg,#f7c1d4,#c9b6f2);display:flex;align-items:center;justify-content:center;text-align:center;font-size:14px;color:#fff;overflow:hidden;filter:brightness(2.2) blur(8px) grayscale(1);transition:filter 5s ease 1.2s}
+.photo.out .img{filter:none}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.photo .cap{position:absolute;bottom:12px;left:0;right:0;text-align:center;font-style:italic;color:#6a4a5a;font-size:15px}
+.flash{position:fixed;inset:0;background:#fff;opacity:0;pointer-events:none;z-index:50}
+.flash.go{animation:fl .7s ease-out}
+@keyframes fl{0%{opacity:0}12%{opacity:1}100%{opacity:0}}
+.controls{position:absolute;bottom:0;left:0;right:0;display:flex;flex-direction:column;align-items:center;gap:10px}
+
+/* LILIES */
+.lilies{position:absolute;bottom:0;left:0;right:0;height:46%;pointer-events:none}
+.lilies svg{position:absolute;bottom:0;transform-origin:50% 100%;animation:sway 5s ease-in-out infinite}
+@keyframes sway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}
+
+/* ENVELOPE */
+.env{position:relative;width:min(300px,80vw);height:200px;cursor:pointer;margin-top:-30px;z-index:2;transition:opacity .8s,transform .8s}
+.env .back{position:absolute;inset:0;background:#f1c3d3;border-radius:8px;box-shadow:0 12px 26px rgba(0,0,0,.3)}
+.env .flap{position:absolute;top:0;left:0;right:0;height:110px;background:#e8a9c0;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .8s ease,z-index 0s .4s;z-index:4;border-radius:8px 8px 0 0}
+.env.open .flap{transform:rotateX(180deg);z-index:1}
+.env .pocket{position:absolute;inset:0;background:#f7d3df;clip-path:polygon(0 0,50% 58%,100% 0,100% 100%,0 100%);border-radius:8px;z-index:3}
+.env .mini{position:absolute;left:8%;right:8%;top:10px;bottom:10px;background:var(--paper);border-radius:4px;z-index:2;transition:transform 1s ease .6s}
+.env.open .mini{transform:translateY(-120px)}
+.env .seal{position:absolute;top:84px;left:50%;margin-left:-16px;width:32px;height:32px;border-radius:50%;background:#c4456f;color:#fff;display:flex;align-items:center;justify-content:center;z-index:5;transition:opacity .3s;font-size:16px}
+.env.open .seal{opacity:0}
+.env.gone{opacity:0;transform:scale(.8)}
+.bigletter{position:fixed;left:50%;top:50%;width:min(86vw,420px);max-height:82vh;overflow:auto;background:var(--paper);color:#4a2c3a;border-radius:6px;padding:28px 26px;box-shadow:0 20px 50px rgba(0,0,0,.4);transform:translate(-50%,-30%) scale(.3);opacity:0;pointer-events:none;transition:transform 1.2s cubic-bezier(.2,.8,.2,1),opacity .8s;z-index:20;background-image:repeating-linear-gradient(transparent 0 27px,rgba(217,106,147,.18) 28px)}
+.bigletter.show{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+.bigletter h2{margin:0 0 12px;font-weight:normal;font-size:24px;color:#b3416b}
+.bigletter p{margin:0 0 14px;line-height:28px;font-size:17px;white-space:pre-line}
+
+/* MUSIC BUTTON */
+.music{position:fixed;top:calc(env(safe-area-inset-top,0px) + 12px);right:12px;z-index:60;width:40px;height:40px;border-radius:50%;border:0;background:rgba(255,255,255,.7);font-size:18px;box-shadow:0 3px 10px rgba(0,0,0,.25)}
+</style>
+</head>
+<body>
+
+<div class="flash" id="flash"></div>
+<audio id="bgm" loop autoplay preload="auto"></audio>
+<button class="music" id="music" aria-label="Toggle music">🔇</button>
+
+<!-- PAGE 1 -->
+<section class="page active" id="p1">
+  <h1>Say cheese! 📸</h1>
+  <div class="stage">
+    <div class="photo" id="photo">
+      <div class="img" id="imgBox"><span>Your photo here 💕</span></div>
+      <div class="cap">us ♡</div>
+    </div>
+    <div class="cam">
+      <div class="brand">DIGICAM</div>
+      <div class="flashbulb"></div>
+      <button class="shutter" id="shutter" aria-label="Take photo"></button>
+      <div class="lens"></div>
+      <div class="slot"></div>
+    </div>
+  </div>
+  <div class="controls">
+    <div class="hint" id="hint1">Press the red button on top ↑</div>
+    <button class="btn hidden" id="next1">Next →</button>
+  </div>
+</section>
+
+<!-- PAGE 2 -->
+<section class="page" id="p2">
+  <h1 id="h2">Something for you…</h1>
+  <div class="hint" id="hint2">Click the envelope 💌</div>
+  <div class="env" id="env">
+    <div class="back"></div>
+    <div class="mini"></div>
+    <div class="pocket"></div>
+    <div class="flap"></div>
+    <div class="seal">♥</div>
+  </div>
+  <div class="lilies" id="lilies"></div>
+</section>
+
+<div class="bigletter" id="letter">
+  <h2 id="lTitle"></h2>
+  <p id="lBody"></p>
+</div>
+
+<script>
+/* ====== EDIT HERE ====== */
+var CONFIG = {
+  photoSrc: "1.jpg",
+  songSrc: "daylight.mp3",
+  title: "Hi, love ♡",
+  message: `i my love, happy happy happy happy monthsary to us! 🥹🥹
+
+
+Thank you so so so much for being such an amazing girlfriend baby! 🥹 You have no idea how much I'm grateful and lucky to have you as my girlfriend. I'm very sorry sa lahat ng pagkukulang and mga pagkakamali ko baby. I know I'm not that perfect. But I assure you po na I'm always willing to try and be better po😚 Always remember that I'm always here for you no matter what oki? I'm here po during your ups and downs baby. I love you so so so much, my future wife! 🥹🥹🥹
+
+
+Again, happy monthsary to us baby ko, I LOVE YOU SO SO SO SOOOOOOO MUCH! 😚😚😚😍😍😍`
+};
+/* ======================= */
+
+var $ = function(id){return document.getElementById(id)};
+var taken = false;
+
+function setPhoto(src){
+  var box = $('imgBox'); box.innerHTML = '';
+  var im = new Image(); im.src = src; im.alt = 'Our photo'; box.appendChild(im);
+}
+if (CONFIG.photoSrc) setPhoto(CONFIG.photoSrc);
+
+$('shutter').addEventListener('click', function(){
+  if (taken) return; taken = true;
+  var s = $('shutter'); s.classList.add('press');
+  $('hint1').textContent = 'Printing…';
+  setTimeout(function(){
+    s.classList.remove('press');
+    var fl = $('flash'); fl.classList.add('go');
+    setTimeout(function(){ $('photo').classList.add('out'); }, 500);
+    setTimeout(function(){
+      $('hint1').textContent = 'Developing… ✨';
+    }, 1500);
+    setTimeout(function(){
+      $('hint1').textContent = 'hehe u so pretty 😚';
+      $('next1').classList.remove('hidden');
+    }, 6200);
+  }, 150);
+});
+
+$('next1').addEventListener('click', function(){
+  $('p1').classList.remove('active');
+  setTimeout(function(){ $('p2').classList.add('active'); }, 600);
+});
+
+/* Lilies (inline SVG) */
+function lily(x, h, w, delay){
+  var petals = '';
+  for (var i = 0; i < 6; i++){
+    petals += '<ellipse cx="50" cy="26" rx="9" ry="26" fill="#fff" stroke="#f0d3df" stroke-width="1" transform="rotate(' + (i*60) + ' 50 50)"/>';
+  }
+  var stamens = '';
+  for (var j = 0; j < 5; j++){
+    stamens += '<line x1="50" y1="50" x2="' + (50 + 14*Math.cos(j*1.26)) + '" y2="' + (50 + 14*Math.sin(j*1.26)) + '" stroke="#e8b04a" stroke-width="2"/><circle cx="' + (50 + 14*Math.cos(j*1.26)) + '" cy="' + (50 + 14*Math.sin(j*1.26)) + '" r="3" fill="#c97a1e"/>';
+  }
+  return '<svg style="left:' + x + '%;animation-delay:' + delay + 's" width="' + w + '" height="' + h + '" viewBox="0 0 100 ' + (h*100/w) + '">' +
+    '<path d="M50 50 Q46 ' + (h*0.5) + ' 50 ' + (h*100/w) + '" stroke="#5f9a5c" stroke-width="4" fill="none"/>' +
+    '<path d="M50 ' + (h*0.75) + ' q-26 -14 -34 -36 q28 4 34 36z" fill="#6fae6b"/>' +
+    petals + '<circle cx="50" cy="50" r="5" fill="#f3e6a0"/>' + stamens + '</svg>';
+}
+$('lilies').innerHTML =
+  lily(2,200,100,0) + lily(16,150,80,.8) + lily(30,230,110,.3) +
+  lily(52,170,90,1.2) + lily(66,240,110,.5) + lily(80,160,85,1) + lily(90,210,95,.2);
+
+$('env').addEventListener('click', function(){
+  var env = $('env');
+  if (env.classList.contains('open')) return;
+  env.classList.add('open');
+  $('hint2').textContent = '';
+  $('h2').textContent = '';
+  $('lTitle').textContent = CONFIG.title;
+  $('lBody').textContent = CONFIG.message;
+  setTimeout(function(){ env.classList.add('gone'); $('letter').classList.add('show'); }, 2000);
+});
+
+/* ===== MUSIC (autoplay + loops forever) ===== */
+var bgm = $('bgm'), mBtn = $('music'), userMuted = false;
+if (CONFIG.songSrc){ bgm.src = CONFIG.songSrc; bgm.loop = true; bgm.volume = 0.6; } else { mBtn.classList.add('hidden'); }
+bgm.addEventListener('ended', function(){ bgm.currentTime = 0; bgm.play(); });
+bgm.addEventListener('playing', function(){ mBtn.textContent = '🔊'; unbind(); });
+
+function startMusic(){
+  if (!CONFIG.songSrc || userMuted) return;
+  var p = bgm.play();
+  if (p && p.catch) p.catch(function(){});
+}
+var evs = ['pointerdown','touchstart','keydown','click','scroll','mousemove'];
+function unbind(){ evs.forEach(function(e){ document.removeEventListener(e, startMusic); }); }
+evs.forEach(function(e){ document.addEventListener(e, startMusic); });
+
+/* try right away on open */
+startMusic();
+window.addEventListener('load', startMusic);
+bgm.addEventListener('canplay', startMusic);
+
+mBtn.addEventListener('pointerdown', function(e){ e.stopPropagation(); });
+mBtn.addEventListener('click', function(e){
+  e.stopPropagation();
+  if (bgm.paused){ userMuted = false; bgm.play(); mBtn.textContent = '🔊'; }
+  else { userMuted = true; bgm.pause(); mBtn.textContent = '🔇'; }
+});
+</script>
+</body>
+</html>
